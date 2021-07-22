@@ -45,6 +45,22 @@
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
+        <com.android.systemui.statusbar.phone.StatusIconContainer
+            android:id="@+id/statusIcons"
+            android:paddingStart="@dimen/signal_cluster_battery_padding"
+            android:gravity="center_vertical|end"
+            android:layout_width="wrap_content"
+            android:layout_height="20dip"/>
+
+        <com.android.systemui.BatteryMeterView
+            android:id="@+id/batteryRemainingIcon"
+            android:paddingStart="@dimen/signal_cluster_battery_padding"
+            android:paddingEnd="@dimen/signal_cluster_battery_padding"
+            android:layout_height="20dip"
+            android:layout_width="wrap_content"
+            android:gravity="center_vertical|end"
+            systemui:textAppearance="@style/TextAppearance.StatusBar.Clock" />
+
     <com.android.systemui.BatteryMeterView
         android:id="@+id/batteryRemainingIcon"
         android:layout_height="match_parent"
