@@ -21,8 +21,10 @@ import static android.provider.Settings.ACTION_MEDIA_CONTROLS_SETTINGS;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -50,6 +52,7 @@ import com.android.systemui.R;
 import com.android.systemui.dagger.qualifiers.Background;
 import com.android.systemui.media.dialog.MediaOutputDialogFactory;
 import com.android.systemui.plugins.ActivityStarter;
+import com.android.systemui.statusbar.MediaArtworkProcessor;
 import com.android.systemui.statusbar.phone.KeyguardDismissUtil;
 import com.android.systemui.util.animation.TransitionLayout;
 
@@ -99,6 +102,7 @@ public class MediaControlPanel {
     private final MediaOutputDialogFactory mMediaOutputDialogFactory;
     private boolean mBackgroundArtwork = false;
     private int mArtworkFadeLevel = 30;
+    private final MediaArtworkProcessor mMediaArtworkProcessor;
 
     /**
      * Initialize a new control panel
@@ -111,7 +115,7 @@ public class MediaControlPanel {
             ActivityStarter activityStarter, MediaViewController mediaViewController,
             SeekBarViewModel seekBarViewModel, Lazy<MediaDataManager> lazyMediaDataManager,
             KeyguardDismissUtil keyguardDismissUtil, MediaOutputDialogFactory
-            mediaOutputDialogFactory) {
+            mediaOutputDialogFactory, MediaArtworkProcessor mediaArtworkProcessor) {
         mContext = context;
         mBackgroundExecutor = backgroundExecutor;
         mActivityStarter = activityStarter;
@@ -120,6 +124,7 @@ public class MediaControlPanel {
         mMediaDataManagerLazy = lazyMediaDataManager;
         mKeyguardDismissUtil = keyguardDismissUtil;
         mMediaOutputDialogFactory = mediaOutputDialogFactory;
+        mMediaArtworkProcessor = mediaArtworkProcessor;
         loadDimens();
 
         mViewOutlineProvider = new ViewOutlineProvider() {
@@ -264,7 +269,12 @@ public class MediaControlPanel {
         setVisibleAndAlpha(expandedSet, R.id.album_art, hasArtwork && !mBackgroundArtwork);
 
         if (hasArtwork) {
-            backgroundImage.setImageDrawable(artwork.loadDrawable(mContext));
+            BitmapDrawable ong = (BitmapDrawable) artwork.loadDrawable(mContext);
+            ong = new BitmapDrawable(mContext.getResources(),
+                    mMediaArtworkProcessor.processArtwork(mContext,
+                        ong.getBitmap(), 17f));
+            ong.setColorFilter(Color.rgb(170, 170, 170), android.graphics.PorterDuff.Mode.DARKEN);
+            backgroundImage.setImageDrawable(ong);
             backgroundImage.setClipToOutline(true);
             backgroundImage.setOutlineProvider(new ViewOutlineProvider() {
                 @Override
